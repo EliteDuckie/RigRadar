@@ -1,0 +1,11 @@
+requests
+beautifulsoup4
+selenium
+webdriver-manager
+SQLAlchemy
+pymysql
+python-dotenv
+schedule
+fastapi
+uvicorn
+undetected-chromedriver

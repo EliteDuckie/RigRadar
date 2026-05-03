@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RigRadar | Dashboard</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #111111;
+            --sidebar-bg: #0a0a0a;
+            --accent: #00d2ff;
+            --neon: #00ff88;
+            --text: #ffffff;
+            --border: #222;
+        }
+
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; }
+        #nav-sidebar { width: 240px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 20px; }
+        .nav-item { padding: 15px; margin: 5px 0; border-radius: 8px; color: #888; font-weight: bold; cursor: pointer; }
+        .nav-item.active { background: #1a1a1a; color: var(--accent); }
+
+        #main-container { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 40px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; transition: 0.2s; position: relative; }
+        .card:hover { border-color: var(--accent); transform: translateY(-3px); }
+        
+        /* BRANDED BADGES */
+        .retailer-badge {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .price { font-size: 2.2rem; color: var(--neon); font-weight: bold; margin: 15px 0; }
+        .btn { display: block; background: var(--accent); color: #000; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <nav id="nav-sidebar">
+        <h2 style="color: var(--accent); margin-bottom: 30px;">🛰️ RigRadar</h2>
+        <div class="nav-item active">🔥 CPUs</div>
+        <div class="nav-item">🎮 GPUs</div>
+    </nav>
+
+    <div id="main-container">
+        <div class="header">
+            <h1>Hardware Tracker</h1>
+            <button style="background:transparent; border:1px solid var(--accent); color:var(--accent); padding:10px 20px; border-radius:5px; cursor:pointer;" onclick="toggleModal(true)">📖 Glossary</button>
+        </div>
+        <div class="grid" id="cpu-grid"></div>
+    </div>
+
+    <script>
+        async function init() {
+            try {
+                // 1. Fetch the Live Exchange Rate first
+                const rateRes = await fetch('https://open.er-api.com/v6/latest/USD');
+                const rateData = await rateRes.json();
+                const usdToCadRate = rateData.rates.CAD;
+
+                // 2. Fetch CPUs
+                const cpuRes = await fetch('http://localhost:8000/api/cpus');
+                const cpus = await cpuRes.json();
+                
+                const grid = document.getElementById('cpu-grid');
+                grid.innerHTML = cpus.map(cpu => {
+                    const isUSD = cpu.currency === 'USD';
+                    const priceDisplay = isUSD ? `$${cpu.lowest_price} USD` : `$${cpu.lowest_price} CAD`;
+                    
+                    // Calculate estimate only if it's USD
+                    const estimateHTML = isUSD 
+                        ? `<div style="font-size: 14px; color: #888; margin-top: -10px;">
+                            ≈ $${(cpu.lowest_price * usdToCadRate).toFixed(2)} CAD (Est.)
+                        </div>`
+                        : '';
+
+                    const isAmazon = cpu.product_url.includes('amazon');
+                    const badgeBg = isAmazon ? '#FF9900' : '#003366';
+
+                    return `
+                        <div class="card">
+                            <div style="display:flex; justify-content:space-between;">
+                                <small style="color:#555;">${cpu.brand}</small>
+                                <span class="retailer-badge" style="background:${badgeBg}; color:white;">${isAmazon ? 'Amazon' : 'Newegg'}</span>
+                            </div>
+                            <h3>${cpu.model_name}</h3>
+                            <div class="price">${priceDisplay}</div>
+                            ${estimateHTML}
+                            <a href="${cpu.product_url}" target="_blank" class="btn">View Deal</a>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) { console.error(e); }
+        }
+        init();
+    </script>
+</body>
+</html>
