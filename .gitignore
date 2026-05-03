@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Custom RigRadar specific files
+.env
+venv/
+__pycache__/

@@ -1,0 +1,14 @@
+{
+  "TDP": {
+    "full_name": "Thermal Design Power",
+    "simple_explain": "How much heat the part makes, and roughly how much electricity it uses. A higher TDP means you need a better cooler and a bigger power supply."
+  },
+  "Socket": {
+    "full_name": "CPU Socket",
+    "simple_explain": "The physical slot on the motherboard where the processor goes. An AMD processor will not physically fit into an Intel socket!"
+  },
+  "DDR5": {
+    "full_name": "Double Data Rate 5 (RAM)",
+    "simple_explain": "The newest, fastest type of memory. Make sure your motherboard explicitly says it supports DDR5, as DDR4 sticks will not fit."
+  }
+}
