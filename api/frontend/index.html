@@ -3,101 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RigRadar | Dashboard</title>
+    <title>RigRadar | Hardware Intelligence</title>
     <style>
         :root {
             --bg: #050505;
             --card-bg: #111111;
             --sidebar-bg: #0a0a0a;
             --accent: #00d2ff;
-            --neon: #00ff88;
             --text: #ffffff;
             --border: #222;
+            
+            /* Custom Brand Colors */
+            --amazon: #FF9900;
+            --newegg: #ffcc00; 
+            --memexpress: #00ff55; 
         }
 
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; }
-        #nav-sidebar { width: 240px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 20px; }
-        .nav-item { padding: 15px; margin: 5px 0; border-radius: 8px; color: #888; font-weight: bold; cursor: pointer; }
-        .nav-item.active { background: #1a1a1a; color: var(--accent); }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-        #main-container { flex-grow: 1; padding: 40px; overflow-y: auto; }
-        .header { display: flex; justify-content: space-between; margin-bottom: 40px; }
+        #sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 30px 20px;
+        }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; transition: 0.2s; position: relative; }
-        .card:hover { border-color: var(--accent); transform: translateY(-3px); }
+        #main-content {
+            flex-grow: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- CONTROL PANEL --- */
+        .controls {
+            background: #0f0f0f;
+            border: 1px solid var(--border);
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .control-group { display: flex; flex-direction: column; gap: 5px; }
+        .control-group label { font-size: 12px; color: #888; font-weight: bold; text-transform: uppercase; }
         
-        /* BRANDED BADGES */
+        select, input {
+            background: #1a1a1a;
+            color: white;
+            border: 1px solid #333;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        input:focus, select:focus { border-color: var(--accent); }
+        input { width: 250px; }
+
+        /* --- TIERS & GRIDS --- */
+        .tier-header {
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+            margin: 30px 0 20px 0;
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+
+        .card:hover { transform: translateY(-4px); border-color: #555; }
+        
         .retailer-badge {
             font-size: 11px;
-            font-weight: 800;
-            padding: 4px 12px;
-            border-radius: 4px;
+            font-weight: 900;
             text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
         }
 
-        .price { font-size: 2.2rem; color: var(--neon); font-weight: bold; margin: 15px 0; }
-        .btn { display: block; background: var(--accent); color: #000; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+        /* Clean, single-line titles */
+        .card h3 {
+            font-size: 1.1rem; 
+            margin: 5px 0 15px 0;
+            color: #fff;
+            font-weight: 600;
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
+
+        .price { font-size: 1.6rem; font-weight: 800; color: #00ff88; margin-top: auto; }
+        
+        .btn {
+            display: block;
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
 
-    <nav id="nav-sidebar">
-        <h2 style="color: var(--accent); margin-bottom: 30px;">🛰️ RigRadar</h2>
-        <div class="nav-item active">🔥 CPUs</div>
-        <div class="nav-item">🎮 GPUs</div>
+    <nav id="sidebar">
+        <h2 style="color: var(--accent);">🛰️ RigRadar</h2>
+        <div style="padding: 10px; background: #1a1a1a; border-radius: 6px; color: var(--accent); font-weight: bold; margin-top: 20px;">🔥 CPUs</div>
+        <div style="padding: 10px; color: #666; font-weight: bold; margin-top: 5px;">🎮 GPUs (Coming Soon)</div>
     </nav>
 
-    <div id="main-container">
-        <div class="header">
-            <h1>Hardware Tracker</h1>
-            <button style="background:transparent; border:1px solid var(--accent); color:var(--accent); padding:10px 20px; border-radius:5px; cursor:pointer;" onclick="toggleModal(true)">📖 Glossary</button>
+    <div id="main-content">
+        
+        <!-- Filter Control Panel -->
+        <div class="controls">
+            <div class="control-group">
+                <label>Search (Model, Cores, Specs)</label>
+                <input type="text" id="search-input" placeholder="e.g. '7800X3D'..." onkeyup="renderDashboard()">
+            </div>
+            <div class="control-group">
+                <label>Brand</label>
+                <select id="brand-select" onchange="renderDashboard()">
+                    <option value="all">All Brands</option>
+                    <option value="amd">AMD</option>
+                    <option value="intel">Intel</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Sort By Price</label>
+                <select id="sort-select" onchange="renderDashboard()">
+                    <option value="asc">Lowest Price First</option>
+                    <option value="desc">Highest Price First</option>
+                </select>
+            </div>
         </div>
-        <div class="grid" id="cpu-grid"></div>
+
+        <!-- Dashboard Container -->
+        <div id="dashboard-container"></div>
+
     </div>
 
     <script>
+        let globalCPUs = [];
+
+        // HELPER: Cleans up messy retailer SEO titles
+        function formatCpuName(rawName) {
+            let name = rawName.replace(/™/g, '');
+            
+            // AMD: Handles normal names AND weird ones like "Ryzen 9 Processor 7950X"
+            const amdMatch = name.match(/(?:AMD\s+)?(Ryzen\s+[3579])(?:[\s\-]| Processor )*(\d{4}[a-zA-Z0-9]*)/i);
+            if (amdMatch) {
+                let series = amdMatch[1].replace(/ryzen/i, 'Ryzen');
+                return "AMD " + series + " " + amdMatch[2].toUpperCase();
+            }
+            
+            // Intel: Handles "Core i9 Processor 14900K", "Intel Core i7-14700K", and "CPU Core i5"
+            const intelMatch = name.match(/(?:Intel\s+)?(?:CPU\s+)?(Core\s*i[3579])(?:[\s\-]| Processor )*(\d{4,5}[a-zA-Z]*)/i);
+            if (intelMatch) {
+                let series = intelMatch[1].replace(/core/i, 'Core');
+                return "Intel " + series + "-" + intelMatch[2].toUpperCase();
+            }
+            
+            return name.split(/ - |,| Processor| \d+-Core| \d+ x /)[0].trim();
+        }
+
         async function init() {
             try {
-                // 1. Fetch the Live Exchange Rate first
-                const rateRes = await fetch('https://open.er-api.com/v6/latest/USD');
-                const rateData = await rateRes.json();
-                const usdToCadRate = rateData.rates.CAD;
-
-                // 2. Fetch CPUs
-                const cpuRes = await fetch('http://localhost:8000/api/cpus');
-                const cpus = await cpuRes.json();
-                
-                const grid = document.getElementById('cpu-grid');
-                grid.innerHTML = cpus.map(cpu => {
-                    const isUSD = cpu.currency === 'USD';
-                    const priceDisplay = isUSD ? `$${cpu.lowest_price} USD` : `$${cpu.lowest_price} CAD`;
-                    
-                    // Calculate estimate only if it's USD
-                    const estimateHTML = isUSD 
-                        ? `<div style="font-size: 14px; color: #888; margin-top: -10px;">
-                            ≈ $${(cpu.lowest_price * usdToCadRate).toFixed(2)} CAD (Est.)
-                        </div>`
-                        : '';
-
-                    const isAmazon = cpu.product_url.includes('amazon');
-                    const badgeBg = isAmazon ? '#FF9900' : '#003366';
-
-                    return `
-                        <div class="card">
-                            <div style="display:flex; justify-content:space-between;">
-                                <small style="color:#555;">${cpu.brand}</small>
-                                <span class="retailer-badge" style="background:${badgeBg}; color:white;">${isAmazon ? 'Amazon' : 'Newegg'}</span>
-                            </div>
-                            <h3>${cpu.model_name}</h3>
-                            <div class="price">${priceDisplay}</div>
-                            ${estimateHTML}
-                            <a href="${cpu.product_url}" target="_blank" class="btn">View Deal</a>
-                        </div>
-                    `;
-                }).join('');
-            } catch (e) { console.error(e); }
+                const res = await fetch('http://localhost:8000/api/cpus');
+                globalCPUs = await res.json();
+                renderDashboard();
+            } catch (e) {
+                console.error("Failed to load RigRadar API:", e);
+                document.getElementById('dashboard-container').innerHTML = "<h3 style='color:red;'>⚠️ Cannot connect to RigRadar API. Is the backend running?</h3>";
+            }
         }
+
+        function renderCard(cpu) {
+            let color = "#fff", store = "Store", logo = "";
+            
+            if (cpu.product_url.includes("amazon")) {
+                color = "var(--amazon)"; store = "Amazon";
+                logo = "https://www.amazon.ca/favicon.ico";
+            } else if (cpu.product_url.includes("newegg")) {
+                color = "var(--newegg)"; store = "Newegg";
+                logo = "https://www.newegg.ca/favicon.ico";
+            } else if (cpu.product_url.includes("memoryexpress")) {
+                color = "var(--memexpress)"; store = "MemExpress";
+                logo = "https://www.memoryexpress.com/favicon.ico";
+            }
+
+            return `
+                <div class="card">
+                    <div style="position: absolute; top: -15px; right: -15px; width: 45px; height: 45px; background: ${color}; filter: blur(35px); opacity: 0.25;"></div>
+                    <div class="retailer-badge" style="color: ${color}">
+                        <img src="${logo}" width="14" style="border-radius: 2px;"> ${store}
+                    </div>
+                    <h3 title="${cpu.model_name}">${formatCpuName(cpu.model_name)}</h3>
+                    <div class="price">$${cpu.lowest_price.toFixed(2)} <span style="font-size: 14px; color: #666;">CAD</span></div>
+                    <a href="${cpu.product_url}" target="_blank" class="btn" style="background: ${color}; color: ${store === 'Newegg' || store === 'MemExpress' ? '#000' : '#fff'}">View Deal</a>
+                </div>
+            `;
+        }
+
+        function renderDashboard() {
+            const container = document.getElementById('dashboard-container');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            const brandVal = document.getElementById('brand-select').value;
+            const sortVal = document.getElementById('sort-select').value;
+
+            // 1. Filter
+            let filtered = globalCPUs.filter(cpu => {
+                const cleanName = formatCpuName(cpu.model_name).toLowerCase();
+                const matchesSearch = cleanName.includes(searchVal) || cpu.model_name.toLowerCase().includes(searchVal);
+                const matchesBrand = brandVal === 'all' || cleanName.startsWith(brandVal);
+                return matchesSearch && matchesBrand;
+            });
+
+            // 2. Sort
+            filtered.sort((a, b) => sortVal === 'asc' ? a.lowest_price - b.lowest_price : b.lowest_price - a.lowest_price);
+
+            // 3. Group
+            const t9 = filtered.filter(c => formatCpuName(c.model_name).match(/Ryzen 9|i9/i));
+            const t7 = filtered.filter(c => formatCpuName(c.model_name).match(/Ryzen 7|i7/i));
+            const t5 = filtered.filter(c => formatCpuName(c.model_name).match(/Ryzen 5|i5/i));
+            const others = filtered.filter(c => !formatCpuName(c.model_name).match(/Ryzen 9|i9|Ryzen 7|i7|Ryzen 5|i5/i));
+
+            // 4. Render HTML
+            let html = "";
+            
+            if (t9.length > 0) {
+                html += `
+                    <div class="tier-header">
+                        <h2 style="color: #bc13fe; margin:0;">⚡ Enthusiast Tier</h2>
+                        <small style="color: #666;">Ryzen 9 / Core i9</small>
+                    </div>
+                    <div class="grid">${t9.map(renderCard).join('')}</div>`;
+            }
+
+            if (t7.length > 0) {
+                html += `
+                    <div class="tier-header">
+                        <h2 style="color: var(--accent); margin:0;">🎮 High-End Gaming</h2>
+                        <small style="color: #666;">Ryzen 7 / Core i7</small>
+                    </div>
+                    <div class="grid">${t7.map(renderCard).join('')}</div>`;
+            }
+
+            if (t5.length > 0) {
+                html += `
+                    <div class="tier-header">
+                        <h2 style="color: #00ff88; margin:0;">🚀 Mid-Range Value</h2>
+                        <small style="color: #666;">Ryzen 5 / Core i5</small>
+                    </div>
+                    <div class="grid">${t5.map(renderCard).join('')}</div>`;
+            }
+
+            if (others.length > 0) {
+                html += `
+                    <div class="tier-header">
+                        <h2 style="color: #aaa; margin:0;">📦 Other Processors</h2>
+                    </div>
+                    <div class="grid">${others.map(renderCard).join('')}</div>`;
+            }
+
+            if (filtered.length === 0) {
+                html = `<div style="text-align:center; padding: 50px; color:#666;"><h3>No components found matching your filters.</h3></div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
         init();
     </script>
 </body>
